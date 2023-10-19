@@ -1,6 +1,14 @@
 # BitGo
 A golang wrapper for the Bitcoin RPC API
 
+Please contribute!
+
+## Supported Nodes
+* Bitcoin
+* Litecoin
+
+## Supported Functions
+* Not many. Please add more!
 
 ## Usage
 
