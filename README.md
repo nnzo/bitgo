@@ -24,6 +24,7 @@ import (
 )
 
 func main() {
+  // Make sure to include the http:// part of the URL.
 	client := bitcoinrpc.NewClient("http://localhost:8332", "yourUsername", "yourPassword")
 
 	blockCount, err := client.GetBlockCount()

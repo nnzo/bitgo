@@ -28,7 +28,7 @@ func NewClient(url, username, password string) *Client {
 	}
 }
 
-func (c *Client) sendRequest(method string, params []string) (interface{}, error) {
+func (c *Client) sendRequest(method string, params []interface{}) (interface{}, error) {
 	data := map[string]interface{}{
 		"jsonrpc": "1.0",
 		"id":      method,
