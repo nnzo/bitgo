@@ -28,15 +28,15 @@ func NewClient(url, username, password string) *Client {
 	}
 }
 
-func (c *Client) sendRequest(method string, params ...interface{}) ([]byte, error) {
-	request := RPCRequest{
-		Jsonrpc: "1.0",
-		ID:      "curltest",
-		Method:  method,
-		Params:  params,
+func (c *Client) sendRequest(method string, params []string) (interface{}, error) {
+	data := map[string]interface{}{
+		"jsonrpc": "1.0",
+		"id":      method,
+		"method":  method,
+		"params":  params,
 	}
 
-	payload, err := json.Marshal(request)
+	payload, err := json.Marshal(data)
 	if err != nil {
 		return nil, err
 	}
@@ -47,69 +47,26 @@ func (c *Client) sendRequest(method string, params ...interface{}) ([]byte, erro
 	}
 
 	req.SetBasicAuth(c.Username, c.Password)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Add("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	httpClient := &http.Client{}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
+
 	defer resp.Body.Close()
 
-	return ioutil.ReadAll(resp.Body)
-}
-
-func (c *Client) GetBlockCount() (int64, error) {
-	response, err := c.sendRequest("getblockcount")
-	if err != nil {
-		return 0, err
-	}
-
-	var result int64
-	err = json.Unmarshal(response, &result)
-	return result, err
-}
-
-func (c *Client) GetBlockHash(blockHeight int64) (string, error) {
-	response, err := c.sendRequest("getblockhash", blockHeight)
-	if err != nil {
-		return "", err
-	}
-
-	var result string
-	err = json.Unmarshal(response, &result)
-	return result, err
-}
-
-func (c *Client) GetBlock(blockHash string) (map[string]interface{}, error) {
-	response, err := c.sendRequest("getblock", blockHash)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	var result map[string]interface{}
-	err = json.Unmarshal(response, &result)
-	return result, err
-}
-
-func (c *Client) GetRawTransaction(txid string) (string, error) {
-	response, err := c.sendRequest("getrawtransaction", txid)
-	if err != nil {
-		return "", err
-	}
-
-	var result string
-	err = json.Unmarshal(response, &result)
-	return result, err
-}
-
-func (c *Client) DecodeRawTransaction(hexString string) (map[string]interface{}, error) {
-	response, err := c.sendRequest("decoderawtransaction", hexString)
+	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
 	}
 
-	var result map[string]interface{}
-	err = json.Unmarshal(response, &result)
-	return result, err
+	return result["result"], nil
 }
